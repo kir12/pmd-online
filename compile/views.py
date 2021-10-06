@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from pathlib import Path
 import re
+from .models import PMDUpload
+import uuid
 
 
 # Create your views here.
@@ -23,7 +25,8 @@ def index(request):
             'error': "An invalid file was supplied."
         }, status=status.HTTP_400_BAD_REQUEST)
     
-    # TODO: run PMD
+    save_obj = PMDUpload(returned_m2_filename=output, mml_file=file)
+    save_obj.save()
 
     return Response({
         'file': file.name,
