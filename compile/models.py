@@ -14,5 +14,6 @@ class PMDUpload(models.Model):
         internal_name = str(uuid.uuid4())[:6]
         self.mml_file.name = f"{internal_name}.mml"
         self.internal_filename = internal_name
-        self.dosbox_output_file.name = str(uuid.uuid4())[:6]
+        self.dosbox_output_file.save(
+            f'{str(uuid.uuid4())[:6]}.txt', ContentFile(''))
         super(PMDUpload, self).save(*args, **kwargs)

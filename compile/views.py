@@ -34,12 +34,20 @@ def index(request):
     save_obj.save()
 
     # run PMD
+    # "dosbox", str(MC_PATH), ">>", save_obj.dosbox_output_file.path]
     subprocess.Popen([
-        "dosbox", str(MC_PATH), ">>", save_obj.dosbox_output_file.path]
+        "dosbox",
+        "-c", "MOUNT C \"compile\"",
+        "-c", "MOUNT D \"media/uploads\"",
+        "-c", "C:",
+        "-c", f"MCE.EXE > D:\\{save_obj.dosbox_output_file.name}",
+        "-c", "exit"
+        ]
     )
+    # dosbox -c 'MOUNT C "compile"' -c "C:" -c "MCE.EXE > test.txt" -c "exit"
 
     # check if file created
-    while not Path(save_obj.dosbox_output_file.path).is_file():
+    while not save_obj.dosbox_output_file.name.is_file():
         time.sleep(0.1)
     
     return Response({
