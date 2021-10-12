@@ -4,6 +4,10 @@ from rest_framework import status
 from pathlib import Path
 import re
 from .models import PMDUpload
+import subprocess
+import time
+
+MC_PATH = Path(__file__).parent.absolute()/'MCE.EXE'
 
 
 # Create your views here.
@@ -30,7 +34,14 @@ def index(request):
     save_obj.save()
 
     # run PMD
+    subprocess.Popen([
+        "dosbox", str(MC_PATH), ">>", save_obj.dosbox_output_file.path]
+    )
 
+    # check if file created
+    while not Path(save_obj.dosbox_output_file.path).is_file():
+        time.sleep(0.1)
+    
     return Response({
         'file': file.name,
         'output': output
