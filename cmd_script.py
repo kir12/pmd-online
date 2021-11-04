@@ -1,6 +1,8 @@
 import requests
 import argparse
 import textwrap
+import base64
+import pdb
 
 BASE_URL = "http://127.0.0.1:8000/compile/"
 
@@ -43,4 +45,6 @@ if __name__ == "__main__":
 
     x = requests.post(
         BASE_URL, data=data, files={'filename': open(results.mml_file, "r")})
-    print(x.text)
+
+    pmd_output = base64.b64decode(x.json()['pmd_response']).decode('utf-8')
+    print(pmd_output)

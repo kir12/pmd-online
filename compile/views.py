@@ -6,6 +6,7 @@ import re
 from .models import PMDUpload
 import subprocess
 import time
+import base64
 
 MC_PATH = Path(__file__).parent.absolute()/'MCE.EXE'
 
@@ -47,14 +48,13 @@ def index(request):
         "-c", "exit"
         ]
 
-    subprocess.Popen(popen_inst)
+    subprocess.check_output(popen_inst, timeout=3)
     # dosbox -c 'MOUNT C "compile"' -c "C:" -c "MCE.EXE > test.txt" -c "exit"
 
-    # check if file created
-    while not Path(f"media/{save_obj.dosbox_output_file}").is_file():
-        time.sleep(0.1)
+    # TODO: error handling
+    response = {}
+    response['pmd_response'] = base64.b64encode(save_obj.dosbox_output_file.open().read())
+    response['pmd_output_file'] = base64.b64encode(save_obj.pmd_output_file.open().read())
+    response['pmd_output_filename'] = Path(save_obj.pmd_output_file.name).name
 
-    return Response({
-        'file': file.name,
-        'output': output
-    })
+    return Response(response)
