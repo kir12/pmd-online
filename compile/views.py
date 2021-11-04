@@ -30,7 +30,7 @@ def index(request):
         }, status=status.HTTP_400_BAD_REQUEST)
     
     # initialize PMDUpload db object and call save on objects
-    save_obj = PMDUpload(returned_m2_filename=output, mml_file=file)
+    save_obj = PMDUpload(output_name=output, mml_file=file)
     save_obj.save()
 
     # run PMD
