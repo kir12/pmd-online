@@ -49,7 +49,7 @@ def index(request):
     # dosbox -c 'MOUNT C "compile"' -c "C:" -c "MCE.EXE > test.txt" -c "exit"
 
     # check if file created
-    while not Path(f"media/{save_obj.pmd_output_file}").is_file():
+    while not Path(f"media/{save_obj.dosbox_output_file}").is_file():
         time.sleep(0.1)
     
     return Response({

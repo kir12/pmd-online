@@ -1,0 +1,16 @@
+ .MML file --> .M file Compiler ver 4.8p
+		Programmed by M.Kajihara(KAJA) 1997/03/15
+
+Usage:  MC [/option] filename[.MML] [filename[.FF]]
+
+Option: /V  Compile with Tonedatas & Messages & Filenames
+        /VW Write Tonedata after Compile
+        /N  Compile on OPN   Mode(Default)
+        /L  Compile on OPL   Mode
+        /M  Compile on OPM   Mode
+        /T  Compile on TOWNS Mode
+        /P  Play after Compile Complete
+        /S  Not Write Compiled File & Play
+        /A  Not Set ADPCM_File before Play
+        /O  Not Put Title Messages after Play
+        /C  Calculate & Put Total Length of Parts
