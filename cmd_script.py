@@ -1,7 +1,6 @@
 import requests
 import argparse
 import textwrap
-import pdb
 
 BASE_URL = "http://127.0.0.1:8000/compile/"
 

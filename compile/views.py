@@ -30,7 +30,7 @@ def index(request):
         return Response({
             'error': "An invalid file was supplied."
         }, status=status.HTTP_400_BAD_REQUEST)
-    
+
     # initialize PMDUpload db object and call save on objects
     save_obj = PMDUpload(pmd_output_file=output, mml_file=file)
     save_obj.save()
@@ -53,7 +53,7 @@ def index(request):
     # check if file created
     while not Path(f"media/{save_obj.dosbox_output_file}").is_file():
         time.sleep(0.1)
-    
+
     return Response({
         'file': file.name,
         'output': output

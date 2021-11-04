@@ -4,6 +4,7 @@ import uuid
 WINDOWS_LINE_ENDING = b'\r\n'
 UNIX_LINE_ENDING = b'\n'
 
+
 def save_path(instance, filename):
     return f"uploads/{instance.directory_name}/{filename.upper()}"
 
