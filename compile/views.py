@@ -32,22 +32,24 @@ def index(request):
     # initialize PMDUpload db object and call save on objects
     save_obj = PMDUpload(pmd_output_file=output, mml_file=file)
     save_obj.save()
+    save_obj.clrf_endings()
 
     # run PMD
     # "dosbox", str(MC_PATH), ">>", save_obj.dosbox_output_file.path]
-    subprocess.Popen([
+    popen_inst = [
         "dosbox",
         "-c", "MOUNT C \"compile\"",
-        "-c", "MOUNT D \"media/uploads\"",
+        "-c", f"MOUNT D \"media/uploads/{save_obj.directory_name}/\"",
         "-c", "C:",
-        "-c", f"MCE.EXE > D:\\{save_obj.dosbox_output_file.name}",
+        "-c", f"MCE.EXE /v D:\\{Path(save_obj.mml_file.name).name}> D:\\{Path(save_obj.dosbox_output_file.name).name}",
         "-c", "exit"
         ]
-    )
+
+    subprocess.Popen(popen_inst)
     # dosbox -c 'MOUNT C "compile"' -c "C:" -c "MCE.EXE > test.txt" -c "exit"
 
     # check if file created
-    while not save_obj.dosbox_output_file.name.is_file():
+    while not Path(f"media/{save_obj.pmd_output_file}").is_file():
         time.sleep(0.1)
     
     return Response({
