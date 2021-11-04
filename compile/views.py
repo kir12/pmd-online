@@ -24,6 +24,8 @@ def index(request):
         output = Path(output).stem
         output = re.sub("[^a-zA-z0-9]", "", output)[:6]
         output = str(Path(output).with_suffix(".m2"))
+
+        options = request.POST.get('options')
     except BaseException:
         return Response({
             'error': "An invalid file was supplied."
@@ -41,7 +43,7 @@ def index(request):
         "-c", "MOUNT C \"compile\"",
         "-c", f"MOUNT D \"media/uploads/{save_obj.directory_name}/\"",
         "-c", "C:",
-        "-c", f"MCE.EXE /v D:\\{Path(save_obj.mml_file.name).name}> D:\\{Path(save_obj.dosbox_output_file.name).name}",
+        "-c", f"MCE.EXE {options} D:\\{Path(save_obj.mml_file.name).name}> D:\\{Path(save_obj.dosbox_output_file.name).name}",
         "-c", "exit"
         ]
 

@@ -11,10 +11,11 @@ if __name__ == "__main__":
         description="Useful MIDI processing operations for PMD",
         formatter_class=argparse.RawTextHelpFormatter)
 
-    group1 = parser.add_argument_group('pmd-args', description="Arguments to pass to PMD")
+    group1 = parser.add_argument_group(
+        'pmd-args', description="Arguments to pass to PMD")
 
     group1.add_argument(
-        "--options", type=str, help=textwrap.dedent('''\
+        "--options", type=str, default="", help=textwrap.dedent('''\
             Optional parameters to pass into PMD:
             \\V\tCompile with Tonedatas & Messages & Filenames
             \\VW\tWrite Tonedata after Compile
@@ -32,13 +33,15 @@ if __name__ == "__main__":
     group1.add_argument("mml_file", type=str, help="path to .MML file")
 
     parser.add_argument(
-        "-o", "--output", type=str, help="Specify custom .M2 output", default=None)
+        "-o", "--output", type=str, help="Specify custom .M2 output",
+        default=None)
 
     results = parser.parse_args()
 
-    data = {}
+    data = {'options': results.options}
     if results.output is not None:
         data['output'] = results.output
+
     x = requests.post(
         BASE_URL, data=data, files={'filename': open(results.mml_file, "r")})
     print(x.text)
