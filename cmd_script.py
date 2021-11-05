@@ -9,6 +9,7 @@ BASE_URL = "http://127.0.0.1:8000/compile/"
 
 if __name__ == "__main__":
 
+    # construct and parse arguments
     parser = argparse.ArgumentParser(
         description="Web-based hosting of PMD",
         formatter_class=argparse.RawTextHelpFormatter)
@@ -44,6 +45,7 @@ if __name__ == "__main__":
 
     results = parser.parse_args()
 
+    # put together data payload
     data = {'options': results.options}
     if results.output is not None:
         data['output'] = results.output
@@ -55,11 +57,11 @@ if __name__ == "__main__":
     if results.ff_file != "":
         payload['ff-file'] = open(results.ff_file, "r")
 
+    # issue post request and get json
     x = requests.post(
         BASE_URL, data=data, files=payload)
-
-    # TODO: error parsing    
     x = x.json()
+
     # print PMD output
     if 'pmd_response' in x:
         pmd_output = base64.b64decode(x['pmd_response']).decode('utf-8')
