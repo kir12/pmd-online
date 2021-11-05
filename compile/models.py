@@ -13,6 +13,7 @@ class PMDUpload(models.Model):
     mml_file = models.FileField(upload_to=save_path)
     dosbox_output_file = models.FileField(blank=True, upload_to=save_path)
     pmd_output_file = models.FileField(blank=True, upload_to=save_path)
+    ff_file = models.FileField(null=True, blank=True, upload_to=save_path)
     created = models.DateTimeField(auto_now_add=True)
     directory_name = models.CharField(max_length=10, default="dir")
     # TODO: PMD parameters?

@@ -17,8 +17,9 @@ def index(request):
 
     # (attempt to) load MML file and construct output name
     try:
+        # retrieve MML file and output name if possible
         file = request.FILES['filename']
-        assert(Path(file.name).suffix == ".mml")
+        assert(Path(file.name).suffix.upper() == ".MML")
         output = request.POST.get('output')
         if output is None:
             output = file.name
@@ -26,32 +27,45 @@ def index(request):
         output = re.sub("[^a-zA-z0-9]", "", output)[:6]
         output = str(Path(output).with_suffix(".m2"))
 
+        # get options
         options = request.POST.get('options')
+
+        # retrieve FF file if possible
+        ff_file = None
+        if 'ff-file' in request.FILES:
+            ff_file = request.FILES['ff-file']
+            assert(Path(ff_file.name).suffix.upper() == ".FF")
+
+    # return bad request if possible
     except BaseException:
         return Response({
-            'error': "An invalid file was supplied."
+            'pmd_error': "An invalid file was supplied."
         }, status=status.HTTP_400_BAD_REQUEST)
 
     # initialize PMDUpload db object and call save on objects
-    save_obj = PMDUpload(pmd_output_file=output, mml_file=file)
+    save_obj = PMDUpload(
+        pmd_output_file=output,
+        mml_file=file, ff_file=ff_file)
     save_obj.save()
     save_obj.clrf_endings()
 
     # run PMD
-    # "dosbox", str(MC_PATH), ">>", save_obj.dosbox_output_file.path]
+    file_params = f"D:\\{Path(save_obj.mml_file.name).name}"
+    if ff_file is not None:
+        file_params += f" D:\\{Path(save_obj.ff_file.name).name}"
+    dos_pipe = f"> D:\\{Path(save_obj.dosbox_output_file.name).name}"
     popen_inst = [
         "dosbox",
         "-c", "MOUNT C \"compile\"",
         "-c", f"MOUNT D \"media/uploads/{save_obj.directory_name}/\"",
         "-c", "C:",
-        "-c", f"MCE.EXE {options} D:\\{Path(save_obj.mml_file.name).name}> D:\\{Path(save_obj.dosbox_output_file.name).name}",
+        "-c", f"MCE.EXE {options} {file_params} {dos_pipe}",
         "-c", "exit"
         ]
 
     subprocess.check_output(popen_inst, timeout=3)
     # dosbox -c 'MOUNT C "compile"' -c "C:" -c "MCE.EXE > test.txt" -c "exit"
 
-    # TODO: error handling
     response = {}
     # grab PMD output if possible
     if Path(f"media/{save_obj.dosbox_output_file.name}").is_file():
