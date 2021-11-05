@@ -48,8 +48,15 @@ if __name__ == "__main__":
 
     # TODO: error parsing    
     x = x.json()
-    pmd_output = base64.b64decode(x['pmd_response']).decode('utf-8')
-    with open(x["pmd_output_filename"], "wb") as f:
-        pmd_raw_content = base64.b64decode(x["pmd_output_file"])
-        f.write(pmd_raw_content)
-    print(pmd_output)
+    # print PMD output
+    if 'pmd_response' in x:
+        pmd_output = base64.b64decode(x['pmd_response']).decode('utf-8')
+        print(pmd_output)
+    else:
+        print(x["pmd_error"])
+
+    # get M2 output if possible
+    if 'pmd_output_filename' in x:
+        with open(x["pmd_output_filename"], "wb") as f:
+            pmd_raw_content = base64.b64decode(x["pmd_output_file"])
+            f.write(pmd_raw_content)

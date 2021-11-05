@@ -53,8 +53,17 @@ def index(request):
 
     # TODO: error handling
     response = {}
-    response['pmd_response'] = base64.b64encode(save_obj.dosbox_output_file.open().read())
-    response['pmd_output_file'] = base64.b64encode(save_obj.pmd_output_file.open().read())
+    # grab PMD output if possible
+    if Path(f"media/{save_obj.dosbox_output_file.name}").is_file():
+        response['pmd_response'] = base64.b64encode(
+            save_obj.dosbox_output_file.open().read())
+    else:
+        response['pmd_error'] = "Warning: PMD timed out while compiling your music file!"
+
+    # grab rendered file if possible
+    if Path(f"media/{save_obj.pmd_output_file.name}").is_file():
+        response['pmd_output_file'] = base64.b64encode(
+            save_obj.pmd_output_file.open().read())
     response['pmd_output_filename'] = Path(save_obj.pmd_output_file.name).name
 
     return Response(response)
