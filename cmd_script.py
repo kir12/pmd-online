@@ -46,5 +46,10 @@ if __name__ == "__main__":
     x = requests.post(
         BASE_URL, data=data, files={'filename': open(results.mml_file, "r")})
 
-    pmd_output = base64.b64decode(x.json()['pmd_response']).decode('utf-8')
+    # TODO: error parsing    
+    x = x.json()
+    pmd_output = base64.b64decode(x['pmd_response']).decode('utf-8')
+    with open(x["pmd_output_filename"], "wb") as f:
+        pmd_raw_content = base64.b64decode(x["pmd_output_file"])
+        f.write(pmd_raw_content)
     print(pmd_output)
