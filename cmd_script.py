@@ -4,6 +4,7 @@ import argparse
 import textwrap
 import base64
 import pdb
+from pathlib import Path
 
 BASE_URL = "http://127.0.0.1:8000/compile/"
 
@@ -71,6 +72,13 @@ if __name__ == "__main__":
 
     # get M2 output if possible
     if 'pmd_output_filename' in x:
-        with open(x["pmd_output_filename"], "wb") as f:
+        # connect optional results output path with final filename
+        if results.output is not None:
+            w_path = (Path(results.output).parent)/x["pmd_output_filename"]
+        else:
+            w_path = Path(x["pmd_output_filename"])
+
+        # write m2 file
+        with open(str(w_path), "wb") as f:
             pmd_raw_content = base64.b64decode(x["pmd_output_file"])
             f.write(pmd_raw_content)
