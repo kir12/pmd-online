@@ -10,6 +10,9 @@ import base64
 
 MC_PATH = Path(__file__).parent.absolute()/'MCE.EXE'
 
+@api_view(['GET'])
+def help(request):
+    return Response({"msg":"sign things are working refresh"}, status = status.HTTP_200_OK)
 
 # Create your views here.
 @api_view(['POST'])
