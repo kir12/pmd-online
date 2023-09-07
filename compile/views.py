@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import re
 from .models import PMDUpload
 import subprocess
@@ -12,7 +12,24 @@ MC_PATH = Path(__file__).parent.absolute()/'MCE.EXE'
 
 @api_view(['GET'])
 def help(request):
-    return Response({"msg":"sign things are working refresh"}, status = status.HTTP_200_OK)
+    
+    # construct command string
+    outputpath = str(Path(__file__).parent / "output.txt")
+    pth = str(PureWindowsPath(__file__).relative_to(Path.home()).parent)
+    thiscmd = ["dosemu", "-dumb", f'"D: || cd {pth} || MCE.EXE"']
+    if "root" in pth:
+        thiscmd = ["xdotool","key","Enter","|"] + thiscmd
+    thiscmd += [">",outputpath]
+
+    # save it to a script.sh file 
+    with open(str(Path(__file__).parent /"script.sh"),"w") as f:
+        print(" ".join(thiscmd), file=f)
+
+    # execute the script
+    subprocess.run(["sh",str(Path(__file__).parent / "script.sh")])
+    with open(outputpath,"r") as f:
+        out = f.read()
+        return Response({"msg":out}, status = status.HTTP_200_OK)
 
 # Create your views here.
 @api_view(['POST'])
