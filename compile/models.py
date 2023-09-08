@@ -6,7 +6,7 @@ UNIX_LINE_ENDING = b'\n'
 
 
 def save_path(instance, filename):
-    return f"uploads/{instance.directory_name}/{filename.upper()}"
+    return f"uploads/{str(instance.uuidterm)[:5]}/{filename.upper()}"
 
 
 class PMDUpload(models.Model):
@@ -14,14 +14,15 @@ class PMDUpload(models.Model):
     dosbox_output_file = models.FileField(blank=True, upload_to=save_path)
     pmd_output_file = models.FileField(blank=True, upload_to=save_path)
     ff_file = models.FileField(null=True, blank=True, upload_to=save_path)
+    script_file = models.FileField(null=True, blank=True, upload_to=save_path)
     created = models.DateTimeField(auto_now_add=True)
-    directory_name = models.CharField(max_length=10, default="dir")
+    uuidterm = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # TODO: PMD parameters?
 
     def save(self, *args, **kwargs):
-        self.directory_name = str(uuid.uuid4())[:6]
         self.dosbox_output_file.name = save_path(self, "dosbox.txt")
         self.pmd_output_file.name = save_path(self, self.pmd_output_file.name)
+        # self.script_file.name = save_path(self, "script.sh")
         super(PMDUpload, self).save(*args, **kwargs)
 
     # convert mml file to CLRF ending

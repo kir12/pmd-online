@@ -65,8 +65,7 @@ if __name__ == "__main__":
 
     # print PMD output
     if 'pmd_response' in x:
-        pmd_output = base64.b64decode(x['pmd_response']).decode('utf-8')
-        print(pmd_output)
+        print(x["pmd_response"])
     else:
         print(x["pmd_error"])
 
