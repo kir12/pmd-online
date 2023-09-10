@@ -19,16 +19,20 @@ FROM python:3.11.5
 # RUN tar -zxf compile/dosemu-1.4.0-bin.tgz -C /home/nonroot/mydos/
 # RUN cd /home/nonroot/mydos/dosemu && chmod 777 * && ./dosemu -dumb
 
-WORKDIR /root/app
-COPY . .
-
 RUN apt update && apt install -y libasound2 libgpm2 libsdl1.2debian libslang2 libsndfile1 libxxf86vm1 xfonts-utils xorg xdotool
 # dosemu was taken off debian and its binaries are inoperative, so I manually downloaded the .deb file
+WORKDIR /root/app
+COPY compile/dosemu_1.4.0.7+20130105+b028d3f-2_amd64.deb compile/
 RUN dpkg -i compile/dosemu_1.4.0.7+20130105+b028d3f-2_amd64.deb
 RUN apt-get install -f
 # usage: xdotool key Enter | dosemu -dumb "CMD"
 
+COPY requirements.txt .
 RUN pip install -r requirements.txt
+
+# WORKDIR /root/app
+COPY . .
+
 RUN python manage.py makemigrations
 RUN python manage.py migrate
 CMD ["python","manage.py","runserver","0.0.0.0:8000"]
