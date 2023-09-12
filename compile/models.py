@@ -1,9 +1,10 @@
 from django.db import models
 import uuid
+from pathlib import Path
+from pmdonline.settings import MEDIA_ROOT
 
 WINDOWS_LINE_ENDING = b'\r\n'
 UNIX_LINE_ENDING = b'\n'
-
 
 def save_path(instance, filename):
     return f"uploads/{str(instance.uuidterm)[:5]}/{filename.upper()}"
@@ -11,17 +12,17 @@ def save_path(instance, filename):
 
 class PMDUpload(models.Model):
     mml_file = models.FileField(upload_to=save_path)
-    dosbox_output_file = models.FileField(blank=True, upload_to=save_path)
+    # dosbox_output_file = models.FileField(blank=True, upload_to=save_path)
     pmd_output_file = models.FileField(blank=True, upload_to=save_path)
-    ff_file = models.FileField(null=True, blank=True, upload_to=save_path)
+    # ff_file = models.FileField(null=True, blank=True, upload_to=save_path)
     script_file = models.FileField(null=True, blank=True, upload_to=save_path)
     created = models.DateTimeField(auto_now_add=True)
     uuidterm = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # TODO: PMD parameters?
 
     def save(self, *args, **kwargs):
-        self.dosbox_output_file.name = save_path(self, "dosbox.txt")
-        self.pmd_output_file.name = save_path(self, self.pmd_output_file.name)
+        # self.dosbox_output_file.name = save_path(self, "dosbox.txt")
+        # self.pmd_output_file.name = save_path(self, self.pmd_output_file.name)
         # self.script_file.name = save_path(self, "script.sh")
         super(PMDUpload, self).save(*args, **kwargs)
 
@@ -34,3 +35,11 @@ class PMDUpload(models.Model):
 
         with open(f"media/{self.mml_file.name}", 'wb') as file:
             file.write(content)
+
+    def delete(self):
+        self.mml_file.delete()
+        self.pmd_output_file.delete()
+        self.script_file.delete()
+        Path(f"{MEDIA_ROOT}/uploads/{str(self.uuidterm)[:5]}/").rmdir()
+        super(PMDUpload, self).delete()
+        

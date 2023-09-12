@@ -56,10 +56,10 @@ def index(request):
         options = request.POST.get('options')
 
         # retrieve FF file if possible
-        ff_file = None
-        if 'ff-file' in request.FILES:
-            ff_file = request.FILES['ff-file']
-            assert(Path(ff_file.name).suffix.upper() == ".FF")
+        # ff_file = None
+        # if 'ff-file' in request.FILES:
+        #     ff_file = request.FILES['ff-file']
+        #     assert(Path(ff_file.name).suffix.upper() == ".FF")
 
     # return bad request if possible
     except BaseException:
@@ -70,52 +70,37 @@ def index(request):
     # initialize PMDUpload db object and call save on objects
     save_obj = PMDUpload(
         pmd_output_file=output,
-        mml_file=file, ff_file=ff_file)
+        mml_file=file ) # , ff_file=ff_file)
     save_obj.save()
     save_obj.clrf_endings()
 
+    # devise relative paths for dosemu
     dosemupath_absolute = Path(__file__).parent
     mmlfilepath_absolute = Path(save_obj.mml_file.path)
-
     mmlfilepath_relative =  str(PureWindowsPath(os.path.relpath(mmlfilepath_absolute.resolve(), dosemupath_absolute.resolve())))
     dosemupath_relative = str(PureWindowsPath(dosemupath_absolute.relative_to(Path.home())))
 
+    # generate output file
+    save_obj.pmd_output_file.save("OUTPUT.TXT", File(StringIO("")))
+
     # construct command string
-    outputpath = str(Path(__file__).parent / "output.txt")
+    outputpath = save_obj.pmd_output_file.path 
     thiscmd = ["dosemu", "-dumb", f'"D: || cd {dosemupath_relative} || MCE.EXE {mmlfilepath_relative}"']
     if "root" in str(Path.home()):
         thiscmd = ["xdotool","key","Enter","|"] + thiscmd
     thiscmd += [">",outputpath]
 
     # generate script.sh file
-    save_obj.script_file.save("script.sh", File(StringIO(" ".join(thiscmd))))
-
-    # # save it to a script.sh file 
-    # with open(str(Path(__file__).parent /"script.sh"),"w") as f:
-    #     print(" ".join(thiscmd), file=f)
+    save_obj.script_file.save("SCRIPT.SH", File(StringIO(" ".join(thiscmd))))
 
     # execute the script
     subprocess.run(["sh",save_obj.script_file.path])
     with open(outputpath,"r") as f:
         out = f.read()
-        return Response({"pmd_response":out}, status = status.HTTP_200_OK)
 
-    # # run PMD
-    # file_params = f"D:\\{Path(save_obj.mml_file.name).name}"
-    # if ff_file is not None:
-    #     file_params += f" D:\\{Path(save_obj.ff_file.name).name}"
-    # dos_pipe = f"> D:\\{Path(save_obj.dosbox_output_file.name).name}"
-    # popen_inst = [
-    #     "dosbox",
-    #     "-c", "MOUNT C \"compile\"",
-    #     "-c", f"MOUNT D \"media/uploads/{save_obj.directory_name}/\"",
-    #     "-c", "C:",
-    #     "-c", f"MCE.EXE {options} {file_params} {dos_pipe}",
-    #     "-c", "exit"
-    #     ]
+    save_obj.delete()    
 
-    # subprocess.check_output(popen_inst, timeout=3)
-    # # dosbox -c 'MOUNT C "compile"' -c "C:" -c "MCE.EXE > test.txt" -c "exit"
+    return Response({"pmd_response":out}, status = status.HTTP_200_OK)
 
     response = {}
     # grab PMD output if possible
