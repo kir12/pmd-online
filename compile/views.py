@@ -75,17 +75,18 @@ def index(request):
     save_obj.clrf_endings()
 
     # devise relative paths for dosemu
-    dosemupath_absolute = Path(__file__).parent
+    dosemupath_absolute = Path(__file__).parent.parent
     mmlfilepath_absolute = Path(save_obj.mml_file.path)
-    mmlfilepath_relative =  str(PureWindowsPath(os.path.relpath(mmlfilepath_absolute.resolve(), dosemupath_absolute.resolve())))
+    mmlfilepath_relative = str(PureWindowsPath(mmlfilepath_absolute.relative_to(dosemupath_absolute)))
     dosemupath_relative = str(PureWindowsPath(dosemupath_absolute.relative_to(Path.home())))
 
-    # generate output file
+    # generate output files
     save_obj.pmd_output_file.save("OUTPUT.TXT", File(StringIO("")))
+    save_obj.m2file.save(Path(save_obj.mml_file.name).with_suffix(".m2").name, File(StringIO("")))
 
     # construct command string
     outputpath = save_obj.pmd_output_file.path 
-    thiscmd = ["dosemu", "-dumb", f'"D: || cd {dosemupath_relative} || MCE.EXE {save_obj.options} {mmlfilepath_relative}"']
+    thiscmd = ["dosemu", "-dumb", f'"D: || cd {dosemupath_relative} || compile\\MCE.EXE {save_obj.options} {mmlfilepath_relative}"']
     if "root" in str(Path.home()):
         thiscmd = ["xdotool","key","Enter","|"] + thiscmd
     thiscmd += [">",outputpath]

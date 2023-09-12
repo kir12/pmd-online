@@ -12,6 +12,7 @@ def save_path(instance, filename):
 
 class PMDUpload(models.Model):
     mml_file = models.FileField(upload_to=save_path)
+    m2file = models.FileField(blank=True, upload_to=save_path)
     # dosbox_output_file = models.FileField(blank=True, upload_to=save_path)
     pmd_output_file = models.FileField(blank=True, upload_to=save_path)
     # ff_file = models.FileField(null=True, blank=True, upload_to=save_path)
@@ -41,6 +42,7 @@ class PMDUpload(models.Model):
         self.mml_file.delete()
         self.pmd_output_file.delete()
         self.script_file.delete()
+        self.m2file.delete()
         Path(f"{MEDIA_ROOT}/uploads/{str(self.uuidterm)[:5]}/").rmdir()
         super(PMDUpload, self).delete()
         
