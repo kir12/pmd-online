@@ -99,9 +99,21 @@ def index(request):
     with open(outputpath,"r") as f:
         out = f.read()
 
+    response = {"pmd_response":out}
+
+    # normally encoding files in base64 is bad, but M2 files max out at 40 - 50 Kb which is negligibly small
+    if Path(save_obj.m2file.path).is_file():
+        response["m2file"] = base64.b64encode(
+            save_obj.m2file.open().read()
+        )
+        response["status"] = 0
+    else:
+        response["m2file"] = ""
+        response["status"] = 1
+
     save_obj.delete()    
 
-    return Response({"pmd_response":out}, status = status.HTTP_200_OK)
+    return Response(response, status = status.HTTP_200_OK)
 
     response = {}
     # grab PMD output if possible
