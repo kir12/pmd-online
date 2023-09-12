@@ -70,7 +70,7 @@ def index(request):
     # initialize PMDUpload db object and call save on objects
     save_obj = PMDUpload(
         pmd_output_file=output,
-        mml_file=file ) # , ff_file=ff_file)
+        mml_file=file, options=options ) # , ff_file=ff_file)
     save_obj.save()
     save_obj.clrf_endings()
 
@@ -85,7 +85,7 @@ def index(request):
 
     # construct command string
     outputpath = save_obj.pmd_output_file.path 
-    thiscmd = ["dosemu", "-dumb", f'"D: || cd {dosemupath_relative} || MCE.EXE {mmlfilepath_relative}"']
+    thiscmd = ["dosemu", "-dumb", f'"D: || cd {dosemupath_relative} || MCE.EXE {save_obj.options} {mmlfilepath_relative}"']
     if "root" in str(Path.home()):
         thiscmd = ["xdotool","key","Enter","|"] + thiscmd
     thiscmd += [">",outputpath]

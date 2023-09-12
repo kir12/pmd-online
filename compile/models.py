@@ -18,6 +18,7 @@ class PMDUpload(models.Model):
     script_file = models.FileField(null=True, blank=True, upload_to=save_path)
     created = models.DateTimeField(auto_now_add=True)
     uuidterm = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    options = models.CharField(null=True, blank=True, max_length=50)
     # TODO: PMD parameters?
 
     def save(self, *args, **kwargs):
