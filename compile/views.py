@@ -55,12 +55,6 @@ def index(request):
         # get options
         options = request.POST.get('options')
 
-        # retrieve FF file if possible
-        # ff_file = None
-        # if 'ff-file' in request.FILES:
-        #     ff_file = request.FILES['ff-file']
-        #     assert(Path(ff_file.name).suffix.upper() == ".FF")
-
     # return bad request if possible
     except BaseException:
         return Response({
@@ -73,6 +67,8 @@ def index(request):
         mml_file=file, options=options ) # , ff_file=ff_file)
     save_obj.save()
     save_obj.clrf_endings()
+
+    
 
     # devise relative paths for dosemu
     dosemupath_absolute = Path(__file__).parent.parent

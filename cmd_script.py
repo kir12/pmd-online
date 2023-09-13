@@ -37,8 +37,8 @@ if __name__ == "__main__":
     group1.add_argument("mml_file", type=str, help="path to .MML file\n\n")
 
     group1.add_argument(
-        "--ff-file",
-        type=str, default="", help="Optional FM Font filepath")
+        "--extra-files",
+        type=str, nargs="+", help="optional extra files")
 
     parser.add_argument(
         "--output", type=str, help="Specify custom .M2 output",
@@ -55,9 +55,9 @@ if __name__ == "__main__":
         'filename': open(results.mml_file, "r"),
     }
     
-    if results.ff_file != "":
-        payload['ff-file'] = open(results.ff_file, "r")
-
+    if results.extra_files is not None:
+        for idx, val in enumerate(results.extra_files):
+            payload[f"extra_files_{idx}"] = open(val, "rb")
     # issue post request and get json
     x = requests.post(
         BASE_URL, data=data, files=payload)
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 
     print(x)
 
-    # # print PMD output
+    #args # print PMD output
     # if 'pmd_response' in x:
     #     print(x["pmd_response"])
     # else:
