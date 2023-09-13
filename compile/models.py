@@ -5,17 +5,16 @@ from pmdonline.settings import MEDIA_ROOT
 
 WINDOWS_LINE_ENDING = b'\r\n'
 UNIX_LINE_ENDING = b'\n'
+UUID_LIMIT = 5
 
 def save_path(instance, filename):
-    return f"uploads/{str(instance.uuidterm)[:5]}/{filename.upper()}"
+    return f"uploads/{str(instance.uuidterm)[:UUID_LIMIT]}/{filename.upper()}"
 
-
+# primary class for uploading PMD files
 class PMDUpload(models.Model):
     mml_file = models.FileField(upload_to=save_path)
     m2file = models.FileField(blank=True, upload_to=save_path)
-    # dosbox_output_file = models.FileField(blank=True, upload_to=save_path)
     pmd_output_file = models.FileField(blank=True, upload_to=save_path)
-    # ff_file = models.FileField(null=True, blank=True, upload_to=save_path)
     script_file = models.FileField(null=True, blank=True, upload_to=save_path)
     created = models.DateTimeField(auto_now_add=True)
     uuidterm = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -43,6 +42,17 @@ class PMDUpload(models.Model):
         self.pmd_output_file.delete()
         self.script_file.delete()
         self.m2file.delete()
-        Path(f"{MEDIA_ROOT}/uploads/{str(self.uuidterm)[:5]}/").rmdir()
+        Path(f"{MEDIA_ROOT}/uploads/{str(self.uuidterm)[:UUID_LIMIT]}/").rmdir()
         super(PMDUpload, self).delete()
-        
+
+def extrafile_savepath(instance, filename):
+    return f"uploads/{str(instance.pmdupload.uuidterm)[:UUID_LIMIT]}/{filename.upper()}"
+
+# additional files that are passed along that PMD needs to compile
+class ExtraFile(models.Model):
+    pmdupload = models.ForeignKey("PMDUpload", on_delete=models.CASCADE)
+    extrafile = models.FileField(null=True, blank=True, upload_to=extrafile_savepath)
+
+    def delete(self):
+        self.extrafile.delete()
+        super(ExtraFile, self).delete()
